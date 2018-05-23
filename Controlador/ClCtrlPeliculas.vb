@@ -35,6 +35,7 @@ Public Class ClCtrlPeliculas
             Return las_peliculas
         Catch ex As Exception
             MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Return las_peliculas
         Finally
             Desconectar()
         End Try
@@ -59,6 +60,53 @@ Public Class ClCtrlPeliculas
             Return OrigenAC
         Catch ex As Exception
             Return OrigenAC
+        Finally
+            Desconectar()
+        End Try
+    End Function
+
+    Public Function InsertarModificar(pelicula As ClMdlPelicula) As Boolean
+        Try
+            Conectar()
+
+            comando = New SqlCommand("upsert_pelicula")
+            comando.CommandType = CommandType.StoredProcedure
+            comando.Connection = conexion
+            comando.Parameters.AddWithValue("@pelicula_id", pelicula.PrPId)
+            comando.Parameters.AddWithValue("@titulo", pelicula.PrTitulo)
+            comando.Parameters.AddWithValue("@genero", pelicula.PrGenero)
+            comando.Parameters.AddWithValue("@año", pelicula.PrAño)
+            comando.Parameters.AddWithValue("@director", pelicula.PrDirector)
+            comando.Parameters.AddWithValue("@formato", pelicula.PrFormato)
+            comando.Parameters.AddWithValue("@precio_alquiler", pelicula.PrPrecioAlquiler)
+            comando.ExecuteNonQuery()
+
+            Return True
+        Catch ex As Exception
+            MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Return False
+        Finally
+            Desconectar()
+        End Try
+    End Function
+
+    Public Function Eliminar(pelicula_id As Integer) As Boolean
+        Try
+            Conectar()
+
+            Debug.WriteLine(pelicula_id)
+
+            Dim sentencia As String = String.Format("delete from pelicula where pelicula_id = {0};", pelicula_id)
+
+            comando = New SqlCommand(sentencia)
+            comando.CommandType = CommandType.Text
+            comando.Connection = conexion
+            comando.ExecuteNonQuery()
+
+            Return True
+        Catch ex As Exception
+            MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Return False
         Finally
             Desconectar()
         End Try
